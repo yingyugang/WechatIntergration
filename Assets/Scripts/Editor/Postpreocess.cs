@@ -3,7 +3,6 @@ using System.IO;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEditor.iOS.Xcode;
-using UnityEditor.XCodeEditor;
 
 public static class Postpreocess
 {
@@ -78,32 +77,6 @@ public static class Postpreocess
         var array = new string[] { "applinks:help.wechat.com" };
         capManager.AddAssociatedDomains(array);
         capManager.WriteToFile();
-
-
-
-        string filePath = Path.GetFullPath(pathToBuildProject);
-        //读取UnityAppController.mm文件
-        XClass UnityAppController = new XClass(filePath + "/Classes/UnityAppController.mm");
-
-        //向微信注册
-        //[WXApi registerApp:@"wxd477edab60670232" withDescription:@"demo 2.0"];
-
-
-        //在指定代码后面增加一行代码
-        //UnityAppController.WriteBelow("#include \"PluginBase/AppDelegateListener.h\"", "#import \"WXApi.h\"");
-        //UnityAppController.WriteBelow("#include \"PluginBase/AppDelegateListener.h\"", "#import \"WXApiManager.h\"");
-
-
-        //AppController_SendNotificationWithArg(kUnityWillFinishLaunchingWithOptions, launchOptions);
-
-        //在指定代码中替换一行
-        //UnityAppController.Replace(");\n    return YES;", ");\n    NSString *text = [url absoluteString];\n    NSLog(@\"Org接收到：%@\", text);\n    [[WXApiManager sharedManager] SendGameDataMessage:text];\n    return [WXApi handleOpenURL:url delegate:[WXApiManager sharedManager]];");
-
-        //UnityAppController.Replace(");\n    return YES;", ");\n    [[WXApiManager sharedManager] SendGameDataMessage:text];\n    return [WXApi handleOpenURL:url delegate:[WXApiManager sharedManager]];");
-
-
-        //在指定代码后面增加一行
-        //UnityAppController.WriteBelow("AppController_SendNotificationWithArg(kUnityWillFinishLaunchingWithOptions, launchOptions);", "[WXApi registerApp:@\"wx7a3c7293fe47ea6a\" withDescription:@\"demo 2.0\"];");
     }
 }
 #endif

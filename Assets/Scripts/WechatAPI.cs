@@ -104,5 +104,27 @@ namespace Wechat
             }
         }
     }
+
+    /// <summary>
+    /// アンドロイドのコールバック用クラス
+    /// </summary>
+    class AndroidPluginCallback : AndroidJavaProxy
+    {
+
+        public AndroidPluginCallback() : base("") { }
+
+        public Action<string> onComplete;
+
+        public void onCallback(string path)
+        {
+            onComplete?.Invoke(path);
+        }
+
+        public void onSuccess(AndroidJavaObject result)
+        {
+
+        }
+
+    }
 }
 

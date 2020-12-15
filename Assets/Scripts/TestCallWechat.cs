@@ -1,36 +1,40 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using Wechat;
 
-public class TestCallWechat : MonoBehaviour
+namespace Wechat
 {
-    WechatAPI wechatAPI;
-    const string WechatAppId = "wxd930ea5d5a258f4f";//wxd930ea5d5a258f4f
-    const string WechatUniversalLink = "https://help.wechat.com/sdksample/";
-    public Button button;
-    public Button button1;
-    public Text text;
-
-    void Start()
+    public class TestCallWechat : MonoBehaviour
     {
-        wechatAPI = new WechatAPI();
-        wechatAPI.Register(WechatAppId, WechatUniversalLink);
-        button.onClick.AddListener(() =>
-        {
-            wechatAPI.Register(WechatAppId, WechatUniversalLink);
-            /*
-            wechatAPI.Authenticate((string authenticateCode) =>
-            {
-                text.text = authenticateCode;
-            });*/
-        });
+        const string WechatAppId = "wxd930ea5d5a258f4f";//wxd930ea5d5a258f4f
+        const string WechatUniversalLink = "https://help.wechat.com/sdksample/";
+        public Button btnRegister;
+        public Button btnAuth;
+        public Text text;
+        WechatAPIBase wechatAPIBase;
 
-        button1.onClick.AddListener(() =>
+        void Start()
         {
-            wechatAPI.Authenticate((string authenticateCode) =>
+#if UNITY_EDITOR
+            Debug.LogWarning("[Wechat SDK] This RuntimePlatform is not supported. Only iOS and Android devices are supported.");
+#endif
+
+#if UNITY_IOS
+            wechatAPIBase = new WechatAPIIOS();
+#elif UNITY_ANDROID
+            wechatAPIBase = new WechatAPIAndroid();
+#endif
+            btnRegister.onClick.AddListener(() =>
             {
-                text.text = authenticateCode;
+                wechatAPIBase.Register(WechatAppId, WechatUniversalLink);
             });
-        });
+
+            btnAuth.onClick.AddListener(() =>
+            {
+                wechatAPIBase.SendAuthRequest((string authenticateCode) =>
+                {
+                    text.text = authenticateCode;
+                });
+            });
+        }
     }
 }
