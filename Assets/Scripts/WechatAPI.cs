@@ -7,6 +7,19 @@ using UnityEngine;
 
 namespace Wechat
 {
+    [Serializable]
+    public class WechatAccessTokenResponseData
+    {
+        public string errcode;
+        public string errmsg;
+        public string access_token;
+
+        public override string ToString()
+        {
+            return $"errcode:{errcode},errmsg:{errmsg},access_token:{access_token}";
+        }
+    }
+
     public class WechatAPI
     {
         delegate void CallBack(IntPtr param);
@@ -19,6 +32,9 @@ namespace Wechat
         [DllImport("__Internal")]
         private static extern void SendAuthRequest(CallBack callBack);
 #endif
+
+        [DllImport("__Internal")]
+        private static extern void ObtainAccessToken(string appId, string secret, string code, CallBack callBack);
 
 #if UNITY_ANDROID// && !UNITY_EDITOR
 
@@ -45,7 +61,7 @@ namespace Wechat
             string path = Marshal.PtrToStringAuto(param);
             NameValueCollection nvc;
             string baseUrl;
-            ParseUrl(path, out nvc,out baseUrl);
+            ParseUrl(path, out nvc, out baseUrl);
             if (baseUrl.IndexOf(TestCallWechat.WechatAppId) != -1)
             {
                 if (!string.IsNullOrEmpty(nvc["code"]))
@@ -53,6 +69,22 @@ namespace Wechat
                     onComplete?.Invoke(nvc["code"]);
                 }
             }
+        }
+
+        [MonoPInvokeCallback(typeof(CallBack))]
+        static void CallBackAccessToken(IntPtr param)
+        {
+            string jsonStr = Marshal.PtrToStringAuto(param);
+            if (!string.IsNullOrEmpty(jsonStr))
+            {
+                WechatAccessTokenResponseData data = JsonUtility.FromJson<WechatAccessTokenResponseData>(jsonStr);
+                Debug.Log(data);
+            }
+        }
+
+        public void GetAccessToken(string code)
+        {
+            ObtainAccessToken(TestCallWechat.WechatAppId, "", code, CallBackAccessToken);
         }
 
         public void Authenticate(Action<string> onComplete)

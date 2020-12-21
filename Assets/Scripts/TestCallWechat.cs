@@ -6,16 +6,20 @@ using Wechat;
 public class TestCallWechat : MonoBehaviour
 {
     WechatAPI wechatAPI;
+    //官方测试APP的AppId
     public static readonly string WechatAppId = "wxd930ea5d5a258f4f";//wxd930ea5d5a258f4f
+    //官方测试App的UniversalLink
     const string WechatUniversalLink = "https://help.wechat.com/sdksample/";
     public Button button;
     public Button button1;
+    public Button button2;
     public Text text;
-    DeepLink deepLink;
+
+    string authorizationCode = "";
 
     void Start()
     {
-        deepLink = new DeepLink((url) =>
+        new DeepLink((url) =>
         {
             NameValueCollection nvc;
             string baseUrl;
@@ -46,7 +50,13 @@ public class TestCallWechat : MonoBehaviour
             {
                 //text.text = authenticateCode;
                 Debug.Log($"openUrl:{authenticateCode}");
+                authorizationCode = authenticateCode;
             });
+        });
+
+        button2.onClick.AddListener(() =>
+        {
+            wechatAPI.GetAccessToken(authorizationCode);
         });
     }
 }

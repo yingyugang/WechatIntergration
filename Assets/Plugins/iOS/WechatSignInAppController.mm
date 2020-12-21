@@ -13,6 +13,8 @@ extern "C" {
     
     CallBack ct;
     
+    CallBack accessTokenCB;
+    
     //ウェチャットに登録
     //向微信注册
     //Register to wechat side
@@ -37,12 +39,17 @@ extern "C" {
         }];
     }
     
-    const char* ObtainAccessToken(char* appId,char* secret,char* code){
+    //Obtain and resolve access token.
+    void ObtainAccessToken(char* appId,char* secret,char* code,CallBack cb){
+        
+        accessTokenCB = cb;
         
         NSString *appIdStr = [NSString stringWithUTF8String:appId];
         NSString *secretStr = [NSString stringWithUTF8String:secret];
         
-        NSString *path = [NSString stringWithFormat:@"https://api.weixin.qq.com/sns/oauth2/access_token?appid=%@&secret=%@&code=%@&grant_type=authorization_code",appIdStr,secretStr,code];
+        NSString *path = [NSString stringWithFormat:@"https://api.weixin.qq.com/sns/oauth2/access_token?appid=%@&secret=%@&code=%s&grant_type=authorization_code",appIdStr,secretStr,code];
+       
+        NSLog(@"%@",path);
         
         NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:path] cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10.0];
         
@@ -55,26 +62,38 @@ extern "C" {
              {
                  //网络失败
                 // UnitySendMessage([gameObjName UTF8String], [authorCancle UTF8String], [@"" UTF8String]);
+                 NSLog(@"%@","connectionError");
+                 
+                 accessTokenCB("");
              }
              else
              {
                  if (data != NULL)
                  {
-                     NSError *jsonParseError;
+                    
+                     //NSLog(@"%s",[response.URL.absoluteString UTF8String]);
                      
+                     NSString *string = [[NSString alloc] initWithData:data
+                                                              encoding:NSUTF8StringEncoding];
+                     
+                     NSLog(string);
+                     
+                     NSError *jsonParseError;
                      NSDictionary *responseData = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&jsonParseError];
                      
-                     NSLog(@"#####responseData = %@",responseData);
-                     if (jsonParseError != NULL)
-                     {
+                     accessTokenCB([string UTF8String]);
+                     //NSLog(@"#####responseData = %@",responseData);
+                     //if (jsonParseError != NULL)
+                     //{
                          //                    NSLog(@"#####responseData = %@",jsonParseError);
-                     }
+                     //}
                      
-                     NSString *accessToken = [responseData valueForKey:@"access_token"];
+                     //NSString *accessToken = [responseData valueForKey:@"access_token"];
                      //needAccessToken = accessToken;
-                     
-                     NSString *openid = [responseData valueForKey:@"openid"];
-                     
+                     //const char *accessTokenChar = [accessToken UTF8String];
+                     //NSString *openid = [responseData valueForKey:@"openid"];
+                     //accessTokenCB(accessTokenChar);
+                     //return accessTokenChar;
                     // [self getUserInfo:accessToken withOpenID:openid];
                  }
              }
