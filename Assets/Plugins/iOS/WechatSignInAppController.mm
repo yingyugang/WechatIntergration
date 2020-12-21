@@ -36,6 +36,50 @@ extern "C" {
             NSLog(@" %s",success ? "True" : "False");
         }];
     }
+    
+    const char* ObtainAccessToken(char* appId,char* secret,char* code){
+        
+        NSString *appIdStr = [NSString stringWithUTF8String:appId];
+        NSString *secretStr = [NSString stringWithUTF8String:secret];
+        
+        NSString *path = [NSString stringWithFormat:@"https://api.weixin.qq.com/sns/oauth2/access_token?appid=%@&secret=%@&code=%@&grant_type=authorization_code",appIdStr,secretStr,code];
+        
+        NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:path] cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10.0];
+        
+        NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+        
+        [NSURLConnection sendAsynchronousRequest:request queue:queue completionHandler:
+         ^(NSURLResponse *response,NSData *data,NSError *connectionError)
+         {
+             if (connectionError != NULL)
+             {
+                 //网络失败
+                // UnitySendMessage([gameObjName UTF8String], [authorCancle UTF8String], [@"" UTF8String]);
+             }
+             else
+             {
+                 if (data != NULL)
+                 {
+                     NSError *jsonParseError;
+                     
+                     NSDictionary *responseData = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&jsonParseError];
+                     
+                     NSLog(@"#####responseData = %@",responseData);
+                     if (jsonParseError != NULL)
+                     {
+                         //                    NSLog(@"#####responseData = %@",jsonParseError);
+                     }
+                     
+                     NSString *accessToken = [responseData valueForKey:@"access_token"];
+                     //needAccessToken = accessToken;
+                     
+                     NSString *openid = [responseData valueForKey:@"openid"];
+                     
+                    // [self getUserInfo:accessToken withOpenID:openid];
+                 }
+             }
+         }];
+    }
 }
 
 /*
@@ -105,5 +149,49 @@ extern "C" {
     ct(str2);
     return handled;
 }
+
+/*
+- (void)getAccessToken:(NSString *)code
+              setAppId:(NSString *)appId
+              setSecret:(NSString *)secret
+{
+    NSString *path = [NSString stringWithFormat:@"https://api.weixin.qq.com/sns/oauth2/access_token?appid=%@&secret=%@&code=%@&grant_type=authorization_code",WeiXinID,WeiXinSecret,code];
+    
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:path] cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10.0];
+    
+    NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+    
+    [NSURLConnection sendAsynchronousRequest:request queue:queue completionHandler:
+     ^(NSURLResponse *response,NSData *data,NSError *connectionError)
+     {
+         if (connectionError != NULL)
+         {
+             //网络失败
+             UnitySendMessage([gameObjName UTF8String], [authorCancle UTF8String], [@"" UTF8String]);
+         }
+         else
+         {
+             if (data != NULL)
+             {
+                 NSError *jsonParseError;
+                 
+                 NSDictionary *responseData = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&jsonParseError];
+                 
+                 NSLog(@"#####responseData = %@",responseData);
+                 if (jsonParseError != NULL)
+                 {
+                     //                    NSLog(@"#####responseData = %@",jsonParseError);
+                 }
+                 
+                 NSString *accessToken = [responseData valueForKey:@"access_token"];
+                 needAccessToken = accessToken;
+                 
+                 NSString *openid = [responseData valueForKey:@"openid"];
+                 
+                 [self getUserInfo:accessToken withOpenID:openid];
+             }
+         }
+     }];
+}*/
 
 @end

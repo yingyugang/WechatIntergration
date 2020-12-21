@@ -44,10 +44,14 @@ namespace Wechat
         {
             string path = Marshal.PtrToStringAuto(param);
             NameValueCollection nvc;
-            ParseUrl(path, out nvc); ;
-            if (!string.IsNullOrEmpty(nvc["code"]))
+            string baseUrl;
+            ParseUrl(path, out nvc,out baseUrl);
+            if (baseUrl.IndexOf(TestCallWechat.WechatAppId) != -1)
             {
-                onComplete?.Invoke(nvc["code"]);
+                if (!string.IsNullOrEmpty(nvc["code"]))
+                {
+                    onComplete?.Invoke(nvc["code"]);
+                }
             }
         }
 
@@ -78,24 +82,27 @@ namespace Wechat
         /// <summary>
         /// urlからパラメーターを解析。
         /// </summary>
-        static void ParseUrl(string url, out NameValueCollection nvc)
+        public static void ParseUrl(string url, out NameValueCollection nvc, out string baseUrl)
         {
-            Debug.Log(url);
             nvc = new NameValueCollection();
             if (string.IsNullOrEmpty(url))
             {
+                baseUrl = url;
                 return;
             }
             int questionMarkIndex = url.IndexOf('?');
             if (questionMarkIndex == -1)
             {
+                baseUrl = url;
                 return;
             }
             if (questionMarkIndex == url.Length - 1)
             {
+                baseUrl = url;
                 return;
             }
             string ps = url.Substring(questionMarkIndex + 1);
+            baseUrl = url.Substring(0, questionMarkIndex + 1);
             Regex re = new Regex(@"(^|&)?(\w+)=([^&]+)(&|$)?", RegexOptions.Compiled);
             MatchCollection mc = re.Matches(ps);
             foreach (Match m in mc)
@@ -103,28 +110,6 @@ namespace Wechat
                 nvc.Add(m.Result("$2").ToLower(), m.Result("$3"));
             }
         }
-    }
-
-    /// <summary>
-    /// アンドロイドのコールバック用クラス
-    /// </summary>
-    class AndroidPluginCallback : AndroidJavaProxy
-    {
-
-        public AndroidPluginCallback() : base("") { }
-
-        public Action<string> onComplete;
-
-        public void onCallback(string path)
-        {
-            onComplete?.Invoke(path);
-        }
-
-        public void onSuccess(AndroidJavaObject result)
-        {
-
-        }
-
     }
 }
 

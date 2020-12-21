@@ -68,7 +68,6 @@ public static class Postpreocess
         //wxd930ea5d5a258f4f
         wxUrlSheme.AddString("wxd930ea5d5a258f4f");
         plist.WriteToFile(plistPath);
-
         //注意，必须放到最后，避免被覆盖。
         //Wechat関連3、Associated Domains設定（Universal Link用、Wechatから呼び出す用かなぁ）
         ProjectCapabilityManager capManager = new ProjectCapabilityManager(projPath, "crosslink.entitlements", null, targetGuid);
