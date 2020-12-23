@@ -127,6 +127,8 @@ namespace Wechat
                 if (isWebRequest)
                 {
                     monoBehaviour.StartCoroutine(GetUserInfoWebRequest(openId, accessToken));
+
+                    _ = GetUserInfoWebRequest(openId, accessToken);
                 }
                 else
                 {

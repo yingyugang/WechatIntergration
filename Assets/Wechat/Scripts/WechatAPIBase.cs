@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Specialized;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -21,7 +22,6 @@ namespace Wechat
         public abstract void GetAccessToken(Action<WechatAccessTokenResponseData> onComplete);
         public abstract void GetUserInfo(string openId, string accessToken, Action<WechatUserInfoResponseData> onComplete);
         public abstract void GetUserInfo(Action<WechatUserInfoResponseData> onComplete);
-        protected static MonoBehaviour monoBehaviour;
         public static bool isWebRequest = true;
 
         /// <summary>
@@ -56,6 +56,43 @@ namespace Wechat
             }
         }
 
+        protected async Task GetAccessTokenWebRequest(string appId, string secret, string code)
+        {
+            string requestStr = $"?appid={appId}&secret={secret}&code={code}&grant_type=authorization_code";
+            string url = "https://api.weixin.qq.com/sns/oauth2/access_token" + requestStr;
+            UnityWebRequest webRequest = UnityWebRequest.Get(url);
+            await webRequest.SendWebRequest();
+            if (webRequest.isNetworkError || webRequest.isHttpError)
+            {
+                Debug.Log(webRequest.error);
+            }
+            else
+            {
+                Debug.Log(webRequest.downloadHandler.text);
+                wechatAccessTokenResponseData = JsonUtility.FromJson<WechatAccessTokenResponseData>(webRequest.downloadHandler.text);
+                onObtainAccessTokenComplete?.Invoke(wechatAccessTokenResponseData);
+            }
+        }
+
+        protected async Task GetUserInfoWebRequest(string openId, string accessToken)
+        {
+            string requestStr = $"?openid={openId}&access_token={accessToken}&lang=zh_CN";
+            string url = "https://api.weixin.qq.com/sns/userinfo" + requestStr;
+            UnityWebRequest webRequest = UnityWebRequest.Get(url);
+            await webRequest.SendWebRequest();
+            if (webRequest.isNetworkError || webRequest.isHttpError)
+            {
+                Debug.LogError(webRequest.error);
+            }
+            else
+            {
+                Debug.Log(webRequest.downloadHandler.text);
+                wechatUserInfoResponseData = JsonUtility.FromJson<WechatUserInfoResponseData>(webRequest.downloadHandler.text);
+                onObtainUserInfoComplete?.Invoke(wechatUserInfoResponseData);
+            }
+        }
+
+        /*
         protected static IEnumerator GetAccessTokenWebRequest(string appId, string secret, string code)
         {
             string requestStr = $"?appid={appId}&secret={secret}&code={code}&grant_type=authorization_code";
@@ -72,8 +109,9 @@ namespace Wechat
                 wechatAccessTokenResponseData = JsonUtility.FromJson<WechatAccessTokenResponseData>(webRequest.downloadHandler.text);
                 onObtainAccessTokenComplete?.Invoke(wechatAccessTokenResponseData);
             }
-        }
+        }*/
 
+        /*
         protected static IEnumerator GetUserInfoWebRequest(string openId, string accessToken)
         {
             string requestStr = $"?openid={openId}&access_token={accessToken}&lang=zh_CN";
@@ -90,7 +128,7 @@ namespace Wechat
                 wechatUserInfoResponseData = JsonUtility.FromJson<WechatUserInfoResponseData>(webRequest.downloadHandler.text);
                 onObtainUserInfoComplete?.Invoke(wechatUserInfoResponseData);
             }
-        }
+        }*/
     }
 
     /// <summary>
