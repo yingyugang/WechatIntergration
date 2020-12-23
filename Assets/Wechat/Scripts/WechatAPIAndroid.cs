@@ -5,6 +5,7 @@ namespace Wechat
 {
     /// <summary>
     /// アンドロイド繋げ用
+    /// //TODO
     /// </summary>
     public class WechatAPIAndroid : WechatAPIBase
     {
@@ -12,11 +13,25 @@ namespace Wechat
 
         public override void GetAccessToken(Action<WechatAccessTokenResponseData> onComplete)
         {
+
+        }
+
+        public override void GetUserInfo(string openId, string accessToken, Action<WechatUserInfoResponseData> onComplete)
+        {
+
+        }
+
+        public override void GetUserInfo(Action<WechatUserInfoResponseData> onComplete)
+        {
             
         }
 
-        public override void Register(string appId,string secret, string universalLink = "")
+        public override void Register(MonoBehaviour monoBehaviour, string appId, string secret, string universalLink = "")
         {
+#if UNITY_EDITOR
+            return;
+#endif
+            WechatAPIBase.monoBehaviour = monoBehaviour;
             wechatIntergration = new AndroidJavaObject("com.crosslink.wechat.WechatIntergration");
             AndroidJavaClass act = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
             var actObj = act.GetStatic<AndroidJavaObject>("currentActivity");

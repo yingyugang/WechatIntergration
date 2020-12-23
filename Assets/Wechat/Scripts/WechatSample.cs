@@ -14,6 +14,7 @@ namespace Wechat
         public readonly static string SampleDomain = "applinks:help.wechat.com";
         WechatAPIBase wechatAPIBase;
         public Button btnGetAccessToken;
+        public Button btnGetUserInfo;
         public Text text;
 
         private void Awake()
@@ -23,19 +24,33 @@ namespace Wechat
 #elif UNITY_ANDROID
             wechatAPIBase = new WechatAPIAndroid();
 #endif
-            wechatAPIBase.Register(WechatAppId, WechatSecret, WechatUniversalLink);
+            wechatAPIBase.Register(this, WechatAppId, WechatSecret, WechatUniversalLink);
 
             btnGetAccessToken.onClick.AddListener(() =>
             {
+                //StartCoroutine(WechatAPIIOS.GetAccessTokenWebRequest("wxd930ea5d5a258f4f","", "001bvvFa1Y7wcA0YtmJa1n4XP14bvvFQ"));
+                //StartCoroutine(WechatAPIIOS.GetUserInfoWebRequest("wxd930ea5d5a258f4f", "xxxxx"));
+                //return;
                 wechatAPIBase.GetAccessToken((data) =>
                 {
-                    if (data.errcode == WechatErrCode.Ok)
+                    if (data.errcodeEnum == WechatErrCode.Ok)
                     {
                         Debug.Log(data.access_token);
                     }
                     else
                     {
-                        Debug.Log($"ErrCode:{data.errcode},ErrMsg:{data.errmsg}");
+                        Debug.Log($"ErrCode:{data.errcodeEnum},ErrMsg:{data.errmsg}");
+                    }
+                });
+            });
+
+            btnGetUserInfo.onClick.AddListener(() =>
+            {
+                wechatAPIBase.GetUserInfo((data) =>
+                {
+                    if (data != null)
+                    {
+                        Debug.Log(data);
                     }
                 });
             });
