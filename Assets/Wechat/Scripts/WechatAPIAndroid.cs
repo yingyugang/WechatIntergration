@@ -38,7 +38,7 @@ namespace Wechat
             wechatIntergration.Call("Enroll", actObj, appId);
         }
 
-        protected override void SendAuthRequest()
+        public override void SendAuthRequest()
         {
             //AndroidJavaObject jo = new AndroidJavaObject("com.crosslink.wechat.WechatIntergration");
             //AndroidJavaClass act = new AndroidJavaClass("com.unity3d.player.UnityPlayer");

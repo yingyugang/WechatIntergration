@@ -73,7 +73,7 @@ public static class Postpreocess
         ProjectCapabilityManager capManager = new ProjectCapabilityManager(projPath, "crosslink.entitlements", null, targetGuid);
         //yingyugang.s3-ap-northeast-1.amazonaws.com,TODO PR時に公式のリンkを書き換え必要。
         //var array = new string[] { "applinks:yingyugang.s3-ap-northeast-1.amazonaws.com" };
-        var array = new string[] { Wechat.WechatSample.SampleDomain };
+        var array = new string[] { Wechat.WechatSample.AccosiateDemain };
         capManager.AddAssociatedDomains(array);
         capManager.WriteToFile();
     }

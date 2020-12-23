@@ -7,7 +7,6 @@ using UnityEngine.Networking;
 
 namespace Wechat
 {
-    public enum WechatErrCode { Ok, NotSupport, UserCancel };
     public abstract class WechatAPIBase
     {
         protected static Action<WechatAccessTokenResponseData> onObtainAccessTokenComplete;
@@ -18,7 +17,7 @@ namespace Wechat
         protected static WechatAccessTokenResponseData wechatAccessTokenResponseData { get; set; }
         protected static WechatUserInfoResponseData wechatUserInfoResponseData { get; set; }
         public abstract void Register(MonoBehaviour monoBehaviour, string appId, string secret, string universalLink = "");
-        protected abstract void SendAuthRequest();
+        public abstract void SendAuthRequest();
         public abstract void GetAccessToken(Action<WechatAccessTokenResponseData> onComplete);
         public abstract void GetUserInfo(string openId, string accessToken, Action<WechatUserInfoResponseData> onComplete);
         public abstract void GetUserInfo(Action<WechatUserInfoResponseData> onComplete);
@@ -101,7 +100,6 @@ namespace Wechat
     [Serializable]
     public class WechatAccessTokenResponseData
     {
-        public WechatErrCode errcodeEnum = WechatErrCode.Ok;
         public int errcode;
         public string errmsg;
         public string access_token;

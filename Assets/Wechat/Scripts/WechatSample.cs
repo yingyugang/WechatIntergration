@@ -1,4 +1,5 @@
 ﻿using System.Collections.Specialized;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,19 +7,26 @@ namespace Wechat
 {
     public class WechatSample : MonoBehaviour
     {
-        //官方测试APP的AppId
-        public static readonly string WechatAppId = "wxd930ea5d5a258f4f";//wxd930ea5d5a258f4f
-                                                                         //官方测试App的UniversalLink
-        static readonly string WechatUniversalLink = "https://help.wechat.com/sdksample/";
-        static readonly string WechatSecret = "";
-        public readonly static string SampleDomain = "applinks:help.wechat.com";
+        public static readonly string WechatAppId = "wxd930ea5d5a258f4f";
+        public static readonly string WechatUniversalLink = "https://help.wechat.com/sdksample/";
+        public static readonly string WechatSecret = "";
+        public static readonly string AccosiateDemain = "applinks:help.wechat.com";
         WechatAPIBase wechatAPIBase;
+        public Button btnRegister;
+        public Button btnAuthorization;
         public Button btnGetAccessToken;
         public Button btnGetUserInfo;
-        public Text text;
+        public TextMeshProUGUI txtAppId;
+        public TextMeshProUGUI txtSecret;
+        public TextMeshProUGUI txtUniversalLink;
+        public TextMeshProUGUI txtAccosiateDemain;
 
         private void Awake()
         {
+            txtAppId.text = $"AppId: {WechatAppId}";
+            txtSecret.text = $"Secret: {WechatSecret}";
+            txtUniversalLink.text = $"UniversalLink: {WechatUniversalLink}";
+            txtAccosiateDemain.text = $"AccosiateDemain: {AccosiateDemain}";
 #if UNITY_IOS
             wechatAPIBase = new WechatAPIIOS();
 #elif UNITY_ANDROID
@@ -26,20 +34,27 @@ namespace Wechat
 #endif
             wechatAPIBase.Register(this, WechatAppId, WechatSecret, WechatUniversalLink);
 
+            btnRegister.onClick.AddListener(() =>
+            {
+                wechatAPIBase.Register(this, WechatAppId, WechatSecret, WechatUniversalLink);
+            });
+
+            btnAuthorization.onClick.AddListener(() =>
+            {
+                wechatAPIBase.SendAuthRequest();
+            });
+
             btnGetAccessToken.onClick.AddListener(() =>
             {
-                //StartCoroutine(WechatAPIIOS.GetAccessTokenWebRequest("wxd930ea5d5a258f4f","", "001bvvFa1Y7wcA0YtmJa1n4XP14bvvFQ"));
-                //StartCoroutine(WechatAPIIOS.GetUserInfoWebRequest("wxd930ea5d5a258f4f", "xxxxx"));
-                //return;
                 wechatAPIBase.GetAccessToken((data) =>
                 {
-                    if (data.errcodeEnum == WechatErrCode.Ok)
+                    if (data.errcode == 0)
                     {
                         Debug.Log(data.access_token);
                     }
                     else
                     {
-                        Debug.Log($"ErrCode:{data.errcodeEnum},ErrMsg:{data.errmsg}");
+                        Debug.Log($"ErrCode:{data.errcode},ErrMsg:{data.errmsg}");
                     }
                 });
             });

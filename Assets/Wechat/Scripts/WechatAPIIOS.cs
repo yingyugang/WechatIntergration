@@ -47,7 +47,7 @@ namespace Wechat
                 {
                     var errcode = nvc["errcode"];
                     Debug.LogError($"errcode:{errcode}");
-                    wechatAccessTokenResponseData.errcodeEnum = WechatErrCode.UserCancel;
+                    wechatAccessTokenResponseData.errcode = -1;
                     wechatAccessTokenResponseData.errmsg = "User cancel.";
                     onObtainAccessTokenComplete?.Invoke(wechatAccessTokenResponseData);
                 }
@@ -95,7 +95,7 @@ namespace Wechat
             }
         }
 
-        protected override void SendAuthRequest()
+        public override void SendAuthRequest()
         {
             SendAuthRequest(CallBackAuthorizationCode);
         }
@@ -105,8 +105,8 @@ namespace Wechat
             wechatAccessTokenResponseData = new WechatAccessTokenResponseData();
             if (string.IsNullOrEmpty(wechatAppId))
             {
-                Debug.LogError("Please register you app first!");
-                wechatAccessTokenResponseData.errcodeEnum = WechatErrCode.NotSupport;
+                wechatAccessTokenResponseData.errcode = -1;
+                wechatAccessTokenResponseData.errmsg = "Please register you app first!";
                 onComplete?.Invoke(wechatAccessTokenResponseData);
             }
             else
@@ -145,13 +145,13 @@ namespace Wechat
         {
             GetAccessToken((data) =>
             {
-                if (data.errcodeEnum == WechatErrCode.Ok)
+                if (data.errcode == 0)
                 {
                     GetUserInfo(data.openid, data.access_token, onComplete);
                 }
                 else
                 {
-                    Debug.Log($"ErrCode:{data.errcodeEnum},ErrMsg:{data.errmsg}");
+                    Debug.Log($"ErrCode:{data.errcode},ErrMsg:{data.errmsg}");
                     wechatUserInfoResponseData = new WechatUserInfoResponseData();
                     wechatUserInfoResponseData.errcode = data.errcode;
                     wechatUserInfoResponseData.errmsg = data.errmsg;
