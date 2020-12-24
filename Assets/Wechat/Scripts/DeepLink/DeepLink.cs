@@ -1,25 +1,28 @@
 ﻿using System;
 using UnityEngine;
 
-/// <summary>
-/// UrlSchemeからパラメーターを受け取る。
-/// </summary>
-public class DeepLink
+namespace Wechat
 {
-    Action<string> onDeepLinkCalled;
-
-    public DeepLink(Action<string> onDeepLinkCalled)
+    /// <summary>
+    /// UrlSchemeからパラメーターを受け取る。
+    /// </summary>
+    public class DeepLink
     {
-        this.onDeepLinkCalled = onDeepLinkCalled;
-        Application.deepLinkActivated += OnDeepLinkActive;
-        if (!string.IsNullOrEmpty(Application.absoluteURL))
+        Action<string> onDeepLinkCalled;
+
+        public DeepLink(Action<string> onDeepLinkCalled)
         {
-            OnDeepLinkActive(Application.absoluteURL);
+            this.onDeepLinkCalled = onDeepLinkCalled;
+            Application.deepLinkActivated += OnDeepLinkActive;
+            if (!string.IsNullOrEmpty(Application.absoluteURL))
+            {
+                OnDeepLinkActive(Application.absoluteURL);
+            }
         }
-    }
 
-    void OnDeepLinkActive(string url)
-    {
-        onDeepLinkCalled?.Invoke(url);
+        void OnDeepLinkActive(string url)
+        {
+            onDeepLinkCalled?.Invoke(url);
+        }
     }
 }

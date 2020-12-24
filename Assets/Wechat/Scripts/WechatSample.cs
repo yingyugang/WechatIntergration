@@ -1,5 +1,4 @@
-﻿using System.Collections.Specialized;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,7 +10,6 @@ namespace Wechat
         public static readonly string WechatUniversalLink = "https://help.wechat.com/sdksample/";
         public static readonly string WechatSecret = "";
         public static readonly string AccosiateDemain = "applinks:help.wechat.com";
-        WechatAPIBase wechatAPIBase;
         public Button btnRegister;
         public Button btnAuthorization;
         public Button btnGetAccessToken;
@@ -20,6 +18,7 @@ namespace Wechat
         public TextMeshProUGUI txtSecret;
         public TextMeshProUGUI txtUniversalLink;
         public TextMeshProUGUI txtAccosiateDemain;
+        WechatSignIn wechatSignIn;
 
         private void Awake()
         {
@@ -27,61 +26,41 @@ namespace Wechat
             txtSecret.text = $"Secret: {WechatSecret}";
             txtUniversalLink.text = $"UniversalLink: {WechatUniversalLink}";
             txtAccosiateDemain.text = $"AccosiateDemain: {AccosiateDemain}";
-#if UNITY_IOS
-            wechatAPIBase = new WechatAPIIOS();
-#elif UNITY_ANDROID
-            wechatAPIBase = new WechatAPIAndroid();
-#endif
-            wechatAPIBase.Register(this, WechatAppId, WechatSecret, WechatUniversalLink);
-
+            wechatSignIn = new WechatSignIn();
             btnRegister.onClick.AddListener(() =>
             {
-                wechatAPIBase.Register(this, WechatAppId, WechatSecret, WechatUniversalLink);
+                wechatSignIn.Register(WechatAppId, WechatSecret, WechatUniversalLink);
             });
-
             btnAuthorization.onClick.AddListener(() =>
             {
-                wechatAPIBase.SendAuthRequest();
+                wechatSignIn.SendAuthRequest((str) =>
+                {
+                    Debug.Log($"[Wechat] AuthorizationCode:{str}");
+                });
             });
-
             btnGetAccessToken.onClick.AddListener(() =>
             {
-                wechatAPIBase.GetAccessToken((data) =>
+                wechatSignIn.GetAccessToken((data) =>
                 {
                     if (data.errcode == 0)
                     {
-                        Debug.Log(data.access_token);
+                        Debug.Log($"[Wechat] AccessToken:{data.access_token}");
                     }
                     else
                     {
-                        Debug.Log($"ErrCode:{data.errcode},ErrMsg:{data.errmsg}");
+                        Debug.Log($"[Wechat] ErrCode:{data.errcode},ErrMsg:{data.errmsg}");
                     }
                 });
             });
-
             btnGetUserInfo.onClick.AddListener(() =>
             {
-                wechatAPIBase.GetUserInfo((data) =>
+                wechatSignIn.GetUserInfo((data) =>
                 {
                     if (data != null)
                     {
-                        Debug.Log(data);
+                        Debug.Log($"[Wechat] UserInfo:{data}");
                     }
                 });
-            });
-
-            new DeepLink((url) =>
-            {
-                NameValueCollection nvc;
-                string baseUrl;
-                WechatAPIBase.ParseUrl(url, out nvc, out baseUrl);
-                if (baseUrl.IndexOf(WechatAppId) != -1)
-                {
-                    if (!string.IsNullOrEmpty(nvc["code"]))
-                    {
-                        Debug.Log($"deepLink:{nvc["code"]}");
-                    }
-                }
             });
         }
     }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -8,17 +7,21 @@ using UnityEngine.Networking;
 
 namespace Wechat
 {
+    /// <summary>
+    /// ウェチャットベース対応
+    /// </summary>
     public abstract class WechatAPIBase
     {
         protected static Action<WechatAccessTokenResponseData> onObtainAccessTokenComplete;
         protected static Action<WechatUserInfoResponseData> onObtainUserInfoComplete;
+        protected static Action<string> onObtainAuthorizationCode;
         protected static string wechatAppId { get; set; }
         protected static string authorizationCode { get; set; }
         protected static string wechatSecuret { get; set; }
         protected static WechatAccessTokenResponseData wechatAccessTokenResponseData { get; set; }
         protected static WechatUserInfoResponseData wechatUserInfoResponseData { get; set; }
-        public abstract void Register(MonoBehaviour monoBehaviour, string appId, string secret, string universalLink = "");
-        public abstract void SendAuthRequest();
+        public abstract bool Register(string appId, string secret, string universalLink = "");
+        public abstract void SendAuthRequest(Action<string> onComplete);
         public abstract void GetAccessToken(Action<WechatAccessTokenResponseData> onComplete);
         public abstract void GetUserInfo(string openId, string accessToken, Action<WechatUserInfoResponseData> onComplete);
         public abstract void GetUserInfo(Action<WechatUserInfoResponseData> onComplete);
@@ -56,7 +59,7 @@ namespace Wechat
             }
         }
 
-        protected async Task GetAccessTokenWebRequest(string appId, string secret, string code)
+        protected static async Task GetAccessTokenWebRequest(string appId, string secret, string code)
         {
             string requestStr = $"?appid={appId}&secret={secret}&code={code}&grant_type=authorization_code";
             string url = "https://api.weixin.qq.com/sns/oauth2/access_token" + requestStr;
@@ -74,7 +77,7 @@ namespace Wechat
             }
         }
 
-        protected async Task GetUserInfoWebRequest(string openId, string accessToken)
+        protected static async Task GetUserInfoWebRequest(string openId, string accessToken)
         {
             string requestStr = $"?openid={openId}&access_token={accessToken}&lang=zh_CN";
             string url = "https://api.weixin.qq.com/sns/userinfo" + requestStr;
@@ -91,6 +94,24 @@ namespace Wechat
                 onObtainUserInfoComplete?.Invoke(wechatUserInfoResponseData);
             }
         }
+
+        /*
+        protected void GetAuthorizationCodeThroughDeepLink()
+        {
+            new DeepLink((url) =>
+            {
+                NameValueCollection nvc;
+                string baseUrl;
+                WechatAPIBase.ParseUrl(url, out nvc, out baseUrl);
+                if (baseUrl.IndexOf(wechatAppId) != -1)
+                {
+                    if (!string.IsNullOrEmpty(nvc["code"]))
+                    {
+                        Debug.Log($"deepLink:{nvc["code"]}");
+                    }
+                }
+            });
+        }*/
 
         /*
         protected static IEnumerator GetAccessTokenWebRequest(string appId, string secret, string code)

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Wechat
 {
     /// <summary>
-    /// アンドロイド繋げ用
+    /// アンドロイド対応
     /// //TODO
     /// </summary>
     public class WechatAPIAndroid : WechatAPIBase
@@ -13,33 +13,33 @@ namespace Wechat
 
         public override void GetAccessToken(Action<WechatAccessTokenResponseData> onComplete)
         {
-
+            Debug.LogWarning("[Wechat] this platform is not support now.");
         }
 
         public override void GetUserInfo(string openId, string accessToken, Action<WechatUserInfoResponseData> onComplete)
         {
-
+            Debug.LogWarning("[Wechat] this platform is not support now.");
         }
 
         public override void GetUserInfo(Action<WechatUserInfoResponseData> onComplete)
         {
-            
+            Debug.LogWarning("[Wechat] this platform is not support now.");
         }
 
-        public override void Register(MonoBehaviour monoBehaviour, string appId, string secret, string universalLink = "")
+        public override bool Register(string appId, string secret, string universalLink = "")
         {
-#if UNITY_EDITOR
-            return;
-#endif
-            WechatAPIBase.monoBehaviour = monoBehaviour;
+            Debug.LogWarning("[Wechat] this platform is not support now.");
             wechatIntergration = new AndroidJavaObject("com.crosslink.wechat.WechatIntergration");
             AndroidJavaClass act = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
             var actObj = act.GetStatic<AndroidJavaObject>("currentActivity");
             wechatIntergration.Call("Enroll", actObj, appId);
+            //TODO
+            return true;
         }
 
-        public override void SendAuthRequest()
+        public override void SendAuthRequest(Action<string> onComplete)
         {
+            Debug.LogWarning("[Wechat] this platform is not support now.");
             //AndroidJavaObject jo = new AndroidJavaObject("com.crosslink.wechat.WechatIntergration");
             //AndroidJavaClass act = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
             //var actObj = act.GetStatic<AndroidJavaObject>("currentActivity");

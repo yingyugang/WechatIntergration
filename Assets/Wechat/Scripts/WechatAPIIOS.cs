@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace Wechat
 {
+    /// <summary>
+    /// ウェチャットIOS対応
+    /// </summary>
     public class WechatAPIIOS : WechatAPIBase
     {
         delegate void CallBack(IntPtr param);
@@ -34,22 +37,18 @@ namespace Wechat
                 if (!string.IsNullOrEmpty(nvc["code"]))
                 {
                     authorizationCode = nvc["code"];
-                    if (isWebRequest)
-                    {
-                        monoBehaviour.StartCoroutine(GetAccessTokenWebRequest(wechatAppId, wechatSecuret, authorizationCode));
-                    }
-                    else
-                    {
-                        ObtainAccessToken(wechatAppId, wechatSecuret, authorizationCode, CallBackAccessToken);
-                    }
+                    onObtainAuthorizationCode?.Invoke(authorizationCode);
                 }
                 else
                 {
                     var errcode = nvc["errcode"];
                     Debug.LogError($"errcode:{errcode}");
-                    wechatAccessTokenResponseData.errcode = -1;
-                    wechatAccessTokenResponseData.errmsg = "User cancel.";
-                    onObtainAccessTokenComplete?.Invoke(wechatAccessTokenResponseData);
+                    if (wechatAccessTokenResponseData != null)
+                    {
+                        wechatAccessTokenResponseData.errcode = -1;
+                        wechatAccessTokenResponseData.errmsg = "User cancel.";
+                        onObtainAccessTokenComplete?.Invoke(wechatAccessTokenResponseData);
+                    }
                 }
             }
         }
@@ -78,25 +77,24 @@ namespace Wechat
             }
         }
 
-        public override void Register(MonoBehaviour monoBehaviour, string appId, string secret, string universalLink)
+        public override bool Register(string appId, string secret, string universalLink)
         {
-#if UNITY_EDITOR
-            return;
-#endif
             if (Enroll(appId, universalLink))
             {
                 wechatAppId = appId;
                 wechatSecuret = secret;
-                WechatAPIBase.monoBehaviour = monoBehaviour;
+                return true;
             }
             else
             {
                 Debug.LogError($"AppId:{appId},Secuet:{secret},UniversalLink:{universalLink},register failure.");
+                return false;
             }
         }
 
-        public override void SendAuthRequest()
+        public override void SendAuthRequest(Action<string> onComplete)
         {
+            onObtainAuthorizationCode = onComplete;
             SendAuthRequest(CallBackAuthorizationCode);
         }
 
@@ -112,7 +110,16 @@ namespace Wechat
             else
             {
                 onObtainAccessTokenComplete = onComplete;
-                SendAuthRequest();
+                SendAuthRequest((data)=> {
+                    if (isWebRequest)
+                    {
+                        _ = GetAccessTokenWebRequest(wechatAppId, wechatSecuret, authorizationCode);
+                    }
+                    else
+                    {
+                        ObtainAccessToken(wechatAppId, wechatSecuret, authorizationCode, CallBackAccessToken);
+                    }
+                });
             }
         }
 
@@ -126,8 +133,6 @@ namespace Wechat
             {
                 if (isWebRequest)
                 {
-                    monoBehaviour.StartCoroutine(GetUserInfoWebRequest(openId, accessToken));
-
                     _ = GetUserInfoWebRequest(openId, accessToken);
                 }
                 else
